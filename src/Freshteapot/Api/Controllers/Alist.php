@@ -7,17 +7,26 @@ use Freshteapot\Http\Response;
 
 /**
  * @api
- *
+ * @api.example GET /alist/123
  */
 class Alist extends HttpApi
 {
-	public function __construct ()
-	{
-		
-	}
+    public function __construct ()
+    {
 
-	public function get ()
-	{
-		return new Response( "200", "get aList" );
-	}
+    }
+
+    /**
+     * To demonstrate the decoupling of the code, we do a second Request
+     * from which we return the data.
+     * 
+     * @return Freshteapot\Http\Response;
+     */
+    public function get ()
+    {
+        $a = new Server( "get", "/items" );
+        $response = (string)$a;
+        $response = json_decode( $a, true );
+        return new Response("200", $response['message'] );
+    }
 }
