@@ -11,11 +11,6 @@ use Freshteapot\Http\Response;
  */
 class Alist extends HttpApi
 {
-    public function __construct ()
-    {
-
-    }
-
     /**
      * To demonstrate the decoupling of the code, we do a second Request
      * from which we return the data.
