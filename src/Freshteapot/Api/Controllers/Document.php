@@ -14,7 +14,8 @@ class Document extends HttpApi
     public function get ()
     {
         //@todo removing hardcode dependency.
-        $Directory = new \RecursiveDirectoryIterator( APP_DIRECTORY . "/");
+        $controllersFolder = APP_DIRECTORY . "/" . str_replace( "\\", "/", __NAMESPACE__ ) . "/";
+        $Directory = new \RecursiveDirectoryIterator( $controllersFolder );
         $Iterator = new \RecursiveIteratorIterator($Directory);
         $files = new \RegexIterator($Iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 

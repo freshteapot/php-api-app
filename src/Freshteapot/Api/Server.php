@@ -42,8 +42,8 @@ class Server
         try {
             $api = new $className();
         } catch ( \Exception $e ) {
-            //@todo More work needed here.
-            echo "Class doesnt exist";
+            $a = new Server("get", "/error/1", array() );
+            $this->response = $a->response;
             return;
         }
 
@@ -51,8 +51,9 @@ class Server
             //@todo Figure out how to pre break the uri parts ready for the controller.
             $this->response = $api->$method( $uri );
         } catch ( \Exception $e ) {
-            $a = new Server("get", "/error/1" );
+            $a = new Server("get", "/error/1", array() );
             $this->response = $a->response;
+            return;
         }
     }
 

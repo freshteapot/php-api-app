@@ -19,7 +19,7 @@ class Alist extends HttpApi
      */
     public function get ()
     {
-        $a = new Server( "get", "/items" );
+        $a = new Server( "get", "/items", array() );
         $response = (string)$a;
         $response = json_decode( $a, true );
         return new Response("200", $response['message'] );
