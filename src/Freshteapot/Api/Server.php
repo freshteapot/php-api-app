@@ -6,6 +6,7 @@ use Freshteapot\Http\Response;
 class Server
 {
     private
+    $router,
     $allowedMethods = array( 'get', 'post', 'put', 'delete', 'patch' );
 
     public
@@ -35,6 +36,9 @@ class Server
     private function run ( $method, $uri )
     {
         $this->checkMethod( $method );
+
+        
+//        $routes = new Router();
 
         $path = explode( "/", $uri );
         //@todo Is hard coded really the way here?

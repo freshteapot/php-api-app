@@ -7,10 +7,46 @@ class HttpApi
     /**
      * Freshteapot\Http\Response
      */
-    $response,
-
-    $uri
+    $response
     ;
+
+    protected
+        $router,
+        $route,
+        $request,
+        $uri,
+        $params
+    ;
+    function __construct() {}
+
+    function setRouter ( Router $router )
+    {
+        $this->router = $router;
+        return $this;
+    }
+
+    function setRoute ( $route )
+    {
+        $this->route = $route;
+        if (isset($this->route["http"]["params"])) {
+            $this->params = $this->route["http"]["params"];
+        } else {
+            $this->params = null;
+        }
+        return $this;
+    }
+
+    function setRequest ( $request )
+    {
+        $this->request = $request;
+        return $this;
+    }
+
+    function setUri ( $uri )
+    {
+        $this->uri = $uri;
+        return $this;
+    }
 
     /**
      * Handles GET requests.

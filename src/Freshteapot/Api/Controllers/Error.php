@@ -20,6 +20,8 @@ class Error extends HttpApi
 {
     /**
      * This will be the error message for a GET request
+     * @api.route /error
+     * @return Freshteapot\Http\Response;
      */
     public function get ()
     {

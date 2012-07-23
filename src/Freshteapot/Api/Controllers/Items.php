@@ -11,6 +11,9 @@ use Freshteapot\Http\Response;
  */
 class Items extends HttpApi
 {
+    /**
+     * @api.route /items
+     */
     public function get ()
     {
         return new Response("200", array( "10","20" ) );
