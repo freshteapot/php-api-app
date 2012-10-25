@@ -18,7 +18,7 @@ class ServerRoute
      * Enter description here ...
      * @param string $method
      * @param string $uri
-     * @param array $headers
+     * @param Request $headers
      * @param Router $router
      * @param array $extra
      * @throws \InvalidArgumentException
