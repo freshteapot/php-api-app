@@ -2,7 +2,11 @@
 namespace Freshteapot\Library\Template;
 
 use Freshteapot\Library\Template;
-
+/**
+ * //@TODO should this class really have so much static?
+ * @author freshteapot
+ *
+ */
 class Site
 {
     private static $instance;
@@ -12,7 +16,7 @@ class Site
 
     }
 
-    public function getInstance ()
+    public static function getInstance ()
     {
         if (self::$instance === null) {
             
@@ -110,7 +114,7 @@ class Site
         }
     }
 
-    protected function _key($id)
+    protected static function _key($id)
     {
         return self::$prefix . $id . self::$suffix;
     }

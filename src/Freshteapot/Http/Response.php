@@ -50,7 +50,16 @@ class Response
         return $this->message;
     }
 
-    public function __toString()
+    /**
+     * Return the headers
+     * @return array
+     */
+    public function headers ()
+    {
+        return $this->headers;
+    }
+
+    public function __toString ()
     {
         return json_encode(array(
             "code" => $this->code,

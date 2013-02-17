@@ -18,13 +18,14 @@ class ServerRoute
      * Enter description here ...
      * @param string $method
      * @param string $uri
-     * @param Request $headers
+     * @param Request $request
      * @param Router $router
      * @param array $extra
      * @throws \InvalidArgumentException
      */
     function __construct ( $method, $uri, Request $request, Router $router, $extra = array() )
     {
+
         $this->router = $router;
         $this->request = $request;
         //@todo how to work with query?
@@ -35,8 +36,14 @@ class ServerRoute
          * 	
          */
         $this->method = $method;
+
+        if ( isset( $extra["errorHandler"] ) ) {
+            $errorHandler = $extra["errorHandler"];
+        }
+
         try {
             $this->route = $this->router->getRoute( $this->method, $this->uri );
+
             if ( isset( $extra["api-router"] ) ) {
                 $this->router = $extra["api-router"];
             }
@@ -51,9 +58,13 @@ class ServerRoute
 
             $this->run();
         } catch( \InvalidArgumentException $e ) {
-            //@todo Better handling required.
-            echo "Method not allowed:{$method}";
-            exit;
+            if (isset($errorHandler)) {
+                //@TODO maybe make this a real class.
+                new $errorHandler();
+            } else {
+                echo "Method not allowed:{$method}";
+                exit;
+            }
         }
     }
 
@@ -77,8 +88,9 @@ class ServerRoute
                 ->setRoute( $this->route )
                 ->setUri( $this->uri )
                 ->$method();
+
         } catch ( \Exception $e ) {
-            echo "Need to fix this 2";
+            echo "Need to fix this 2: {$method} {$className}";
 
             exit;
             $a = new Server("get", "/error/1", array() );
@@ -106,8 +118,9 @@ class ServerRoute
 
     public function render()
     {
-        //Set header code
-        //$this->response->code
+        $httpApi = new \Freshteapot\Api\HttpApi();
+        header($httpApi->getStatus($this->response->code));
+
         if (count($this->response->headers)>=1) {
             foreach( $this->response->headers as $header => $message ) {
                 //@TODO plugin to do something based on a header?

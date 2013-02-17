@@ -2,7 +2,7 @@
 namespace Freshteapot\Api;
 
 use Freshteapot\Http\Response;
-
+//@TODO - Can this be removed?
 class Server
 {
     private
@@ -52,8 +52,10 @@ class Server
         }
 
         try {
+            echo "here";
+            exit;
             //@todo Figure out how to pre break the uri parts ready for the controller.
-            $this->response = $api->$method( $uri );
+            $this->response = $api->$method($uri);
         } catch ( \Exception $e ) {
             $a = new Server("get", "/error/1", array() );
             $this->response = $a->response;

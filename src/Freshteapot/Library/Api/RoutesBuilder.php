@@ -11,104 +11,99 @@ class RoutesBuilder extends Builder
      */
     public function make ( $pathToConfig )
     {
-        $files = $this->getFiles();
+        try {
+            $files = $this->getFiles();
 
-        $apis = array();
-        $uris = array();
-        foreach( $files as $file )
-        {
-            $path = $file['0'];
+            $apis = array();
+            $uris = array();
+            foreach( $files as $file )
+            {
+                $path = $file['0'];
 
-            $pathName = str_replace( $this->pathToApp, "", $path );
+                $pathName = str_replace( $this->pathToApp, "", $path );
 
-            $className = dirname( $pathName ) . DIRECTORY_SEPARATOR . basename( $pathName, ".php" );
-            $className = str_replace( "/", "\\", $className );
+                $className = dirname( $pathName ) . DIRECTORY_SEPARATOR . basename( $pathName, ".php" );
+                $className = str_replace( "/", "\\", $className );
 
-            $refClass = new \ReflectionClass( $className );
-            $commentBlock = $refClass->getDocComment();
+                $refClass = new \ReflectionClass( $className );
+                $commentBlock = $refClass->getDocComment();
 
-            if ( $this->commentBlockisApi( $commentBlock ) !== true ) {
-                continue;
-            }
+                if ( $this->commentBlockisApi( $commentBlock ) !== true ) {
+                    continue;
+                }
+                $resource = $this->parseCommentBlockForResource($commentBlock);
+                $paramData = $this->parseCommentBlockForParameters($commentBlock);
 
-            $key = $refClass->getName();
-            $methods = $this->parseMethods( $refClass );
+                $key = $refClass->getName();
+                $methods = $this->parseMethods( $refClass );
 
-            if ( count( $methods ) < 1 ) {
-                continue;
-            }
-
-            $routes = array();
-
-            foreach ( $methods as $method ) {
-                $commentBlock = $refClass->getMethod( $method )->getDocComment();
-
-                $routeData = $this->parseCommentBlockForRoutes( $commentBlock );
-                if ( empty( $routeData ) ) {
-                    echo "We should fail\n";
+                if ( count( $methods ) < 1 ) {
                     continue;
                 }
 
-                foreach ($routeData as $route) {
-                    $routes[] = array(
-                        'http' => array(
-                            "uri" => $route,
-                            "method" => $method
-                        ),
-                        'controller' => array(
-                            "path" => $path,
-                            "className" => $className,
-                            "method" => $method
-                        )
-                    );
+                $routes = array();
 
-                    $uniq_route = "{$method}:{$route}";
-                    echo $uniq_route . "\n";
-                    if ( isset( $uris[ $uniq_route ] ) ) {
-                        echo "Two routes have been detected.\n";
-                        echo "Latest Route.\n";
-                        print_r( end( $routes ) );
-                        echo "Other Route.\n";
-                        print_r( $uris[$uniq_route] );
-                        exit;
+                foreach ( $methods as $method ) {
+                    $commentBlock = $refClass->getMethod( $method )->getDocComment();
+
+                    $routeData = $this->parseCommentBlockForRoutes( $commentBlock );
+                    if ( empty( $routeData ) ) {
+                        echo "We should fail\n";
+                        continue;
                     }
-                    $uris[$uniq_route] = end( $routes );
+
+                    foreach ($routeData as $route) {
+                        $data = array(
+                                'http' => array(
+                                    "resource" => (!empty($resource) ? $resource : "" ),
+                                    "uri" => $route,
+                                    "method" => $method
+                                ),
+                                'controller' => array(
+                                    "path" => $path,
+                                    "className" => $className,
+                                    "method" => $method
+                            ));
+
+                        if (!empty($paramData)) {
+                            $routeParams = explode("/", $route);
+                            foreach( $routeParams as $routeParam) {
+                                if (empty($routeParam)) continue;
+                                if (substr($routeParam, 0, 1) === ":") {
+                                    $paramKey = substr($routeParam, 1);
+                                    if (isset($paramData[$paramKey])) {
+                                        $data["http"]["params"][$paramKey] = $paramData[$paramKey];
+                                    }
+                                }
+                            }
+                        }
+
+                        $routes[] = $data;
+                        $uniq_route = "{$method}:{$route}";
+                        echo $uniq_route . "\n";
+                        if ( isset( $uris[ $uniq_route ] ) ) {
+                            echo "Two routes have been detected.\n";
+                            echo "Latest Route.\n";
+                            print_r( end( $routes ) );
+                            echo "Other Route.\n";
+                            print_r( $uris[$uniq_route] );
+                            throw new \Exception("Missing");
+                        }
+                        $uris[$uniq_route] = end( $routes );
+                    }
                 }
-            }
-            if ( empty( $routes ) ) {
+                if ( empty( $routes ) ) {
+                    continue;
+                }
+                $apis[ $key ] = $routes;
                 continue;
             }
-            $apis[ $key ] = $routes;
-            continue;
-        }
 
-        $data = json_encode( $apis );
-        file_put_contents ( $pathToConfig, $data );
-/*
-            $data = array();
-            foreach( $examples as $k => $example ) {
-                //@note might need to be \t as well.
-                list( $method, $uri) = explode( " ", $example );
-
-                $method = strtolower( $method );
-                if (in_array( $method, $methods ) ) {
-                    $data[] = array(
-                        'http' => array(
-                            "uri" => $uri,
-                            "method" => $method
-                        ),
-                        'controller' => array(
-                            "path" => $path,
-                            "className" => $className,
-                            "method" => $method
-                        )
-                    );
-                }
-            }
-            $apis[ $key ] = $data;
+            $data = json_encode( $apis );
+            file_put_contents ( $pathToConfig, $data );
+        } catch( \Exception $e) {
+            echo $e->getMessage() . "\n";
+            exit(1);
         }
-        return $apis;
-*/
     }
-
 }

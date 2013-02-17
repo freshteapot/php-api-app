@@ -73,7 +73,7 @@ class Router
         $part = explode("/", $uri);
         $partSize = count($part);
 
-        $routes = $this->routes[ $method ];
+        $routes = $this->routes[$method];
         foreach ( $routes as $route ) {
 
             //@note Could force a hard limit for partSize

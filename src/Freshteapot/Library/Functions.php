@@ -178,3 +178,39 @@ function kisset( $name, $data )
         return false;
     }
 }
+
+/**
+ * //@TODO - This should be replaced by a more standard uuid creation.
+ * //@TODO - This really is horrible.
+ * @return string
+ */
+function uuid()
+{
+    $index = 'abcdefghijklmnpqrstuvwxyz_ABCDEFGHIJKLMNPQRSTUVWXYZ123456789';
+    $size = strlen( $index )-1;
+    $p = array();
+    for( $i=0;$i<$size;++$i )
+    {
+        $num = mt_rand( 0, $size );
+        if( !isset( $p[$num ] ) )
+        {
+            $p[$num]=$num;
+        }
+    }
+
+    $uuid = '';
+    $index = str_split($index);
+    foreach( $p as $id )
+    {
+        if( isset( $index[ $id ] ) )
+        {
+            $uuid .= $index[ $id ];
+        }
+    }
+    $uuid = substr( $uuid, 0, 11);
+    if( is_numeric( $uuid ) )
+    {
+        return uuid();
+    }
+    return $uuid;
+}
